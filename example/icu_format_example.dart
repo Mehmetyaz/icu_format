@@ -1,7 +1,7 @@
 import 'package:icu_format/icu_format.dart';
 
 void testParsePlaceholder() {
-  var result;
+  PlaceholderMatch? result;
 
   // Test simple case
   result = PlaceholderMatch.parsePlaceholders("{name}");
@@ -10,20 +10,19 @@ void testParsePlaceholder() {
   // Test plural case
   result = PlaceholderMatch.parsePlaceholders(
       "{count, plural, =0{No items} =1{One item} other{# items}}");
-  print(
-      "Plural: Key: ${result?.key}, Type: ${result?.type}, Options: ${result?.options}");
+  print("Plural: Key: ${result?.key}, Type: ${result?.type}");
 
   result = PlaceholderMatch.parsePlaceholders(
     "{count, plural, zero{No items} one{One item} few{# items} many{# items} other{# items}}",
   );
-  print(
+/*   print(
       "Plural 2: Key: ${result?.key}, Type: ${result?.type}, Options: ${result?.options}");
 
   // Test select case
   result = PlaceholderMatch.parsePlaceholders(
       "{gender, select, male{Mr. {name}} female{Ms. {name}} other{Dear {name}}}");
   print(
-      "Select: Key: ${result?.key}, Type: ${result?.type}, Options: ${result?.options}");
+      "Select: Key: ${result?.key}, Type: ${result?.type}, Options: ${result?.options}"); */
 }
 
 void main() {
