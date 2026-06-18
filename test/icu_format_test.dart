@@ -38,6 +38,9 @@ void main() {
   group("Translation", () {
     final arb = ICUFormat({
       "hello": "Hello, {name}",
+      "\$hello": {
+        "placeholders": {"name": {"type": "String"}}
+      },
       "select":
           "Hello {gender, select, male{Mr. {name}} female{Ms. {name}} other{Dear {name}}}",
       "plural": "{count, plural, =0{No items} =1{One item} other{# items}}",

@@ -8,7 +8,7 @@ class ICUFormat {
 
   static Map<String, dynamic>? _placeholders(
       String key, Map<String, dynamic> arb) {
-    return (arb["@$key"] as Map<String, dynamic>?)?["placeholders"];
+    return (arb["\$$key"] as Map<String, dynamic>?)?["placeholders"];
   }
 
   static (int, int)? findOuterMostBraces(String input) {
@@ -76,6 +76,13 @@ class ICUFormat {
     return (value: arb[key] as String?, placeholders: _placeholders(key, arb));
   }
 
+  static (int, int)? findOuterMostBracesFrom(String input, int startIndex) {
+    if (startIndex >= input.length) return null;
+    final match = findOuterMostBraces(input.substring(startIndex));
+    if (match == null) return null;
+    return (startIndex + match.$1, startIndex + match.$2);
+  }
+
   static String format(String value, Map<String, dynamic>? params,
       Map<String, dynamic>? options, String lang) {
     (int, int)? matches = findOuterMostBraces(value);
@@ -83,7 +90,10 @@ class ICUFormat {
     while (matches != null) {
       final placeholder = PlaceholderMatch.parsePlaceholders(
           value.substring(matches.$1, matches.$2));
-      if (placeholder == null) continue;
+      if (placeholder == null) {
+        matches = findOuterMostBracesFrom(value, matches.$2);
+        continue;
+      }
       value = value.replaceRange(matches.$1, matches.$2,
           placeholder.build(params ?? {}, options ?? {}, lang));
       matches = findOuterMostBraces(value);
