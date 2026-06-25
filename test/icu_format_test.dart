@@ -17,21 +17,33 @@ void main() {
       expect(ICUFormat.findAllOuterMostBraces(t3)[0], matchIndex(t3, "{a}"));
       final t4 = "{a {b} c}";
       expect(
-          ICUFormat.findAllOuterMostBraces(t4)[0], matchIndex(t4, "{a {b} c}"));
+        ICUFormat.findAllOuterMostBraces(t4)[0],
+        matchIndex(t4, "{a {b} c}"),
+      );
       final t5 = "{a {b {c}} d}";
-      expect(ICUFormat.findAllOuterMostBraces(t5)[0],
-          matchIndex(t5, "{a {b {c}} d}"));
-      final t6 = "'{ {a {b {c} d} e}";
-      expect(ICUFormat.findAllOuterMostBraces(t6)[0],
-          matchIndex(t6, "{a {b {c} d} e}"));
-      final t7 = "{a {b {c} d} e} }'";
-      expect(ICUFormat.findAllOuterMostBraces(t7)[0],
-          matchIndex(t7, "{a {b {c} d} e}"));
-      final t8 = "{a {b {c} d} e} {second}";
-      expect(ICUFormat.findAllOuterMostBraces(t8)[0],
-          matchIndex(t8, "{a {b {c} d} e}"));
       expect(
-          ICUFormat.findAllOuterMostBraces(t8)[1], matchIndex(t8, "{second}"));
+        ICUFormat.findAllOuterMostBraces(t5)[0],
+        matchIndex(t5, "{a {b {c}} d}"),
+      );
+      final t6 = "'{ {a {b {c} d} e}";
+      expect(
+        ICUFormat.findAllOuterMostBraces(t6)[0],
+        matchIndex(t6, "{a {b {c} d} e}"),
+      );
+      final t7 = "{a {b {c} d} e} }'";
+      expect(
+        ICUFormat.findAllOuterMostBraces(t7)[0],
+        matchIndex(t7, "{a {b {c} d} e}"),
+      );
+      final t8 = "{a {b {c} d} e} {second}";
+      expect(
+        ICUFormat.findAllOuterMostBraces(t8)[0],
+        matchIndex(t8, "{a {b {c} d} e}"),
+      );
+      expect(
+        ICUFormat.findAllOuterMostBraces(t8)[1],
+        matchIndex(t8, "{second}"),
+      );
     });
   });
 
@@ -39,7 +51,9 @@ void main() {
     final arb = ICUFormat({
       "hello": "Hello, {name}",
       "\$hello": {
-        "placeholders": {"name": {"type": "String"}}
+        "placeholders": {
+          "name": {"type": "String"},
+        },
       },
       "select":
           "Hello {gender, select, male{Mr. {name}} female{Ms. {name}} other{Dear {name}}}",
@@ -63,26 +77,30 @@ void main() {
     group('select translation', () {
       test("male gender", () {
         expect(
-            arb.translate("select", "en", {"name": "John", "gender": "male"}),
-            "Hello Mr. John");
+          arb.translate("select", "en", {"name": "John", "gender": "male"}),
+          "Hello Mr. John",
+        );
       });
 
       test("female gender", () {
         expect(
-            arb.translate(
-                "select", "en", {"name": "Alice", "gender": "female"}),
-            "Hello Ms. Alice");
+          arb.translate("select", "en", {"name": "Alice", "gender": "female"}),
+          "Hello Ms. Alice",
+        );
       });
 
       test("other gender", () {
         expect(
-            arb.translate("select", "en", {"name": "Sam", "gender": "other"}),
-            "Hello Dear Sam");
+          arb.translate("select", "en", {"name": "Sam", "gender": "other"}),
+          "Hello Dear Sam",
+        );
       });
 
       test("unspecified gender", () {
         expect(
-            arb.translate("select", "en", {"name": "Alex"}), "Hello Dear Alex");
+          arb.translate("select", "en", {"name": "Alex"}),
+          "Hello Dear Alex",
+        );
       });
     });
 
@@ -121,23 +139,35 @@ void main() {
     group('nested translation', () {
       test("no messages, male", () {
         expect(
-            arb.translate(
-                "nested", "en", {"count": 0, "name": "John", "gender": "male"}),
-            "You have no messages from Mr. John");
+          arb.translate("nested", "en", {
+            "count": 0,
+            "name": "John",
+            "gender": "male",
+          }),
+          "You have no messages from Mr. John",
+        );
       });
 
       test("one message, female", () {
         expect(
-            arb.translate("nested", "en",
-                {"count": 1, "name": "Alice", "gender": "female"}),
-            "You have one message from Ms. Alice");
+          arb.translate("nested", "en", {
+            "count": 1,
+            "name": "Alice",
+            "gender": "female",
+          }),
+          "You have one message from Ms. Alice",
+        );
       });
 
       test("multiple messages, other gender", () {
         expect(
-            arb.translate(
-                "nested", "en", {"count": 5, "name": "Sam", "gender": "other"}),
-            "You have 5 messages from Dear Sam");
+          arb.translate("nested", "en", {
+            "count": 5,
+            "name": "Sam",
+            "gender": "other",
+          }),
+          "You have 5 messages from Dear Sam",
+        );
       });
     });
   });

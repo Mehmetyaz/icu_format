@@ -7,7 +7,9 @@ class ICUFormat {
   ICUFormat(this.arb);
 
   static Map<String, dynamic>? _placeholders(
-      String key, Map<String, dynamic> arb) {
+    String key,
+    Map<String, dynamic> arb,
+  ) {
     return (arb["\$$key"] as Map<String, dynamic>?)?["placeholders"];
   }
 
@@ -67,7 +69,7 @@ class ICUFormat {
         } else {
           return (
             value: current[key] as String?,
-            placeholders: _placeholders(key, current)
+            placeholders: _placeholders(key, current),
           );
         }
       }
@@ -83,19 +85,27 @@ class ICUFormat {
     return (startIndex + match.$1, startIndex + match.$2);
   }
 
-  static String format(String value, Map<String, dynamic>? params,
-      Map<String, dynamic>? options, String lang) {
+  static String format(
+    String value,
+    Map<String, dynamic>? params,
+    Map<String, dynamic>? options,
+    String lang,
+  ) {
     (int, int)? matches = findOuterMostBraces(value);
 
     while (matches != null) {
       final placeholder = PlaceholderMatch.parsePlaceholders(
-          value.substring(matches.$1, matches.$2));
+        value.substring(matches.$1, matches.$2),
+      );
       if (placeholder == null) {
         matches = findOuterMostBracesFrom(value, matches.$2);
         continue;
       }
-      value = value.replaceRange(matches.$1, matches.$2,
-          placeholder.build(params ?? {}, options ?? {}, lang));
+      value = value.replaceRange(
+        matches.$1,
+        matches.$2,
+        placeholder.build(params ?? {}, options ?? {}, lang),
+      );
       matches = findOuterMostBraces(value);
     }
 
@@ -117,7 +127,8 @@ abstract class PlaceholderMatch {
   PlaceholderMatch({required this.key, required this.type, required this.raw});
 
   static List<(String key, int start, int end)> findOptionsWithKeys(
-      String input) {
+    String input,
+  ) {
     List<(String key, int start, int end)> matches = [];
     int openCount = 0;
     int? startIndex;
@@ -157,14 +168,16 @@ abstract class PlaceholderMatch {
     // Simple {param} case
     if (RegExp(r'^\{[^,{}]+\}$').hasMatch(placeholder)) {
       return SimplePlaceholderMatch(
-          key: placeholder.substring(1, placeholder.length - 1).trim(),
-          type: PlaceholderType.simple,
-          raw: placeholder);
+        key: placeholder.substring(1, placeholder.length - 1).trim(),
+        type: PlaceholderType.simple,
+        raw: placeholder,
+      );
     }
 
     // Complex case: {key, type, options}
-    final match =
-        RegExp(r'^\{([^,]+),\s*([^,]+),\s*(.+)\}$').firstMatch(placeholder);
+    final match = RegExp(
+      r'^\{([^,]+),\s*([^,]+),\s*(.+)\}$',
+    ).firstMatch(placeholder);
     if (match == null) return null;
 
     final key = match.group(1)!.trim();
@@ -181,42 +194,63 @@ abstract class PlaceholderMatch {
     switch (type) {
       case PlaceholderType.plural:
         return PluralPlaceholderMatch(
-            key: key, type: type, options: options, raw: placeholder);
+          key: key,
+          type: type,
+          options: options,
+          raw: placeholder,
+        );
       case PlaceholderType.select:
         return SelectPlaceholderMatch(
-            key: key, type: type, options: options, raw: placeholder);
+          key: key,
+          type: type,
+          options: options,
+          raw: placeholder,
+        );
       case PlaceholderType.simple:
         return SimplePlaceholderMatch(key: key, type: type, raw: placeholder);
     }
   }
 
   String build(
-      Map<String, dynamic> params, Map<String, dynamic> opts, String lang);
+    Map<String, dynamic> params,
+    Map<String, dynamic> opts,
+    String lang,
+  );
 }
 
 class SimplePlaceholderMatch extends PlaceholderMatch {
-  SimplePlaceholderMatch(
-      {required super.key, required super.type, required super.raw});
+  SimplePlaceholderMatch({
+    required super.key,
+    required super.type,
+    required super.raw,
+  });
 
   @override
   String build(
-      Map<String, dynamic> params, Map<String, dynamic> opts, String lang) {
+    Map<String, dynamic> params,
+    Map<String, dynamic> opts,
+    String lang,
+  ) {
     return params[key].toString();
   }
 }
 
 class PluralPlaceholderMatch extends PlaceholderMatch {
-  PluralPlaceholderMatch(
-      {required super.key,
-      required super.type,
-      required this.options,
-      required super.raw});
+  PluralPlaceholderMatch({
+    required super.key,
+    required super.type,
+    required this.options,
+    required super.raw,
+  });
 
   final Map<String, String> options;
 
   @override
   String build(
-      Map<String, dynamic> params, Map<String, dynamic> opts, String lang) {
+    Map<String, dynamic> params,
+    Map<String, dynamic> opts,
+    String lang,
+  ) {
     final val = (params[key] as num?);
     String res;
 
@@ -235,9 +269,10 @@ class PluralPlaceholderMatch extends PlaceholderMatch {
       return ICUFormat.format(res, params, options, lang);
     }
 
-    res = options["=${val.toString()}"] ??
-        options[
-            (pluralRules[lang]?[plType]?.call(val) ?? PluralType.other).name] ??
+    res =
+        options["=${val.toString()}"] ??
+        options[(pluralRules[lang]?[plType]?.call(val) ?? PluralType.other)
+            .name] ??
         options["other"] ??
         "";
 
@@ -265,17 +300,21 @@ class PluralPlaceholderMatch extends PlaceholderMatch {
 }
 
 class SelectPlaceholderMatch extends PlaceholderMatch {
-  SelectPlaceholderMatch(
-      {required super.key,
-      required super.type,
-      required this.options,
-      required super.raw});
+  SelectPlaceholderMatch({
+    required super.key,
+    required super.type,
+    required this.options,
+    required super.raw,
+  });
 
   final Map<String, String> options;
 
   @override
   String build(
-      Map<String, dynamic> params, Map<String, dynamic> opts, String lang) {
+    Map<String, dynamic> params,
+    Map<String, dynamic> opts,
+    String lang,
+  ) {
     final val = params[key] as String?;
     final res = options[val] ?? options["other"] ?? "";
     return ICUFormat.format(res, params, opts, lang);
@@ -289,7 +328,8 @@ enum PlaceholderType {
 
   static PlaceholderType fromString(String type) {
     return PlaceholderType.values.firstWhere(
-        (e) => e.toString().split('.').last == type,
-        orElse: () => throw ArgumentError('Invalid placeholder type: $type'));
+      (e) => e.toString().split('.').last == type,
+      orElse: () => throw ArgumentError('Invalid placeholder type: $type'),
+    );
   }
 }

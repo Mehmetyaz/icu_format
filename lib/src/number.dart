@@ -1,18 +1,8 @@
 // Documentation https://www.unicode.org/cldr/charts/45/supplemental/language_plural_rules.html
 
-enum PluralType {
-  zero,
-  one,
-  two,
-  few,
-  many,
-  other,
-}
+enum PluralType { zero, one, two, few, many, other }
 
-enum PluralRuleType {
-  cardinal,
-  ordinal,
-}
+enum PluralRuleType { cardinal, ordinal }
 
 typedef PluralRule = PluralType Function(num);
 
@@ -56,8 +46,8 @@ final Map<String, Map<PluralRuleType, PluralRule>> pluralRules = {
     },
     PluralRuleType.ordinal: (n) {
       return PluralType.other;
-    }
-  }
+    },
+  },
 };
 
 // ... existing code ...
